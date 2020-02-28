@@ -23,19 +23,21 @@ $ go get github.com/oalders/go-fqdn
 package main
 
 import (
-	"fmt"
-	"github.com/oalders/go-fqdn"
+    "fmt"
+    "log"
+
+    fqdn "github.com/oalders/go-fqdn"
 )
 
 func main() {
-	name, err := Get()
-	if err == nil {
-		fmt.Println(name)
-	}
+    name, err := fqdn.Get()
+    if err != nil {
+        log.Fatal(err)
+    }
+    fmt.Println(name)
 }
 ```
 
 `fqdn.Get()` returns:
 - machine's FQDN if found
-- an empty string if FQDN is not found
-- an error if one is encountered
+- otherwise returns an error

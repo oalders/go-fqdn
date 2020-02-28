@@ -10,10 +10,7 @@ import (
 )
 
 // Get Fully Qualified Domain Name
-
-// Returns a string containing an FQDN.  Returns an empty string if an FQDN cannot be
-// found.  Returns an error is one is encountered.
-
+// Returns a string containing an FQDN.  Returns an error if no FQDN could be found.
 func Get() (string, error) {
 	hostname, err := os.Hostname()
 	if err != nil {
@@ -41,5 +38,5 @@ func Get() (string, error) {
 			return strings.TrimSuffix(hosts[0], "."), nil
 		}
 	}
-	return "", nil
+	return "", errors.New("no FQDN could be found")
 }
