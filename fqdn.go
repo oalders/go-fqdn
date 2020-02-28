@@ -1,37 +1,45 @@
+// Package fqdn attempts to find a Fully Qualified Domain Name for a host.
+// This is a fork of https://github.com/Showmax/go-fqdn with some API changes.
 package fqdn
 
 import (
+	"errors"
 	"net"
 	"os"
 	"strings"
 )
 
 // Get Fully Qualified Domain Name
-// returns "unknown" or hostanme in case of error
-func Get() string {
+
+// Returns a string containing an FQDN.  Returns an empty string if an FQDN cannot be
+// found.  Returns an error is one is encountered.
+
+func Get() (string, error) {
 	hostname, err := os.Hostname()
 	if err != nil {
-		return "unknown"
+		return "", err
 	}
 
 	addrs, err := net.LookupIP(hostname)
 	if err != nil {
-		return hostname
+		return "", err
 	}
 
 	for _, addr := range addrs {
 		if ipv4 := addr.To4(); ipv4 != nil {
 			ip, err := ipv4.MarshalText()
 			if err != nil {
-				return hostname
+				return "", err
 			}
 			hosts, err := net.LookupAddr(string(ip))
-			if err != nil || len(hosts) == 0 {
-				return hostname
+			if err != nil {
+				return "", err
 			}
-			fqdn := hosts[0]
-			return strings.TrimSuffix(fqdn, ".") // return fqdn without trailing dot
+			if len(hosts) == 0 {
+				return "", errors.New("No hosts found for ip: " + string(ip))
+			}
+			return strings.TrimSuffix(hosts[0], "."), nil
 		}
 	}
-	return hostname
+	return "", nil
 }
